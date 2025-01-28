@@ -1,9 +1,9 @@
 import { React } from 'react';
 
-function ItemInfoPanel() {
+function ItemInfoPanel({ item }) {
     return (
         <div className="h-screen w-screen bg-white flex items-center justify-center">
-            Test text
+            Item info panel
         </div>
     );
 }  
