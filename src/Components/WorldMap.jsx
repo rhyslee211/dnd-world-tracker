@@ -18,6 +18,7 @@ function WorldMap() {
       if (!isDragging) return;
       const newX = e.clientX - startPoint.x;
       const newY = e.clientY - startPoint.y;
+
       setPosition({ x: newX, y: newY });
     };
   
