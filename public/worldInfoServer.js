@@ -17,6 +17,8 @@ const db = new sqlite3.Database('./world.db', (err) => {
     }
 });
 
+app.use(express.json());
+
 app.get('/characters', (req, res) => {
     db.all('SELECT * FROM characters', (err, rows) => {
         if (err) {
@@ -81,8 +83,8 @@ app.get('/items', (req, res) => {
 
 
 app.post('/characters', (req, res) => {
-    const { name, location_id, faction_id } = req.body;
-    db.run('INSERT INTO characters (name, location_id, faction_id) VALUES (?, ?, ?)', [name, location_id, faction_id], function(err) {
+    const { name, race , role ,  location_id, faction_id } = req.body;
+    db.run('INSERT INTO characters (name, race, role, location_id, faction_id) VALUES (?, ?, ?, ?, ?)', [name, race, role, location_id, faction_id], function(err) {
         if (err) {
             res.status(400).json({"error":err.message});
             return;
@@ -92,8 +94,8 @@ app.post('/characters', (req, res) => {
 });
 
 app.post('/locations', (req, res) => {
-    const { name } = req.body;
-    db.run('INSERT INTO locations (name) VALUES (?)', [name], function(err) {
+    const { name , type , positionx, positiony } = req.body;
+    db.run('INSERT INTO locations (name) VALUES (?,?,?,?)', [name,type,positionx,positiony], function(err) {
         if (err) {
             res.status(400).json({"error":err.message});
             return;
@@ -240,6 +242,15 @@ function buildTree(locations, characters, monsters, events, items) {
       if (location) {
         if (!location.people) location.people = [];
         location.people.push(person);
+
+        // Add person to the parent location if it exists
+        if (location.parent_id) {
+          const parentLocation = locationMap[location.parent_id];
+          if (parentLocation) {
+            if (!parentLocation.people) parentLocation.people = [];
+            parentLocation.people.push(person);
+          }
+        }
       }
     });
   
@@ -248,6 +259,15 @@ function buildTree(locations, characters, monsters, events, items) {
       if (location) {
         if (!location.monsters) location.monsters = [];
         location.monsters.push(monster);
+
+        // Add monster to the parent location if it exists
+        if (location.parent_id) {
+          const parentLocation = locationMap[location.parent_id];
+          if (parentLocation) {
+            if (!parentLocation.monsters) parentLocation.monsters = [];
+            parentLocation.monsters.push(monster);
+          }
+        }
       }
     });
 
@@ -256,6 +276,15 @@ function buildTree(locations, characters, monsters, events, items) {
         if (location) {
           if (!location.events) location.events = [];
           location.events.push(event);
+
+          // Add event to the parent location if it exists
+          if (location.parent_id) {
+            const parentLocation = locationMap[location.parent_id];
+            if (parentLocation) {
+              if (!parentLocation.events) parentLocation.events = [];
+              parentLocation.events.push(event);
+            }
+          }
         }
       });
 
@@ -264,23 +293,34 @@ function buildTree(locations, characters, monsters, events, items) {
         if (location) {
           if (!location.items) location.items = [];
           location.items.push(item);
+
+          // Add item to the parent location if it exists
+          if (location.parent_id) {
+            const parentLocation = locationMap[location.parent_id];
+            if (parentLocation) {
+              if (!parentLocation.items) parentLocation.items = [];
+              parentLocation.items.push(item);
+            }
+          }
         }
       }
     );
-  
-    // Step 3: Build the tree (nest locations based on parent_id)
+
+    // Step 3: Build the tree structure
     const tree = [];
     locations.forEach(location => {
       if (location.parent_id) {
-        locationMap[location.parent_id].children.push(locationMap[location.id]);
+        const parentLocation = locationMap[location.parent_id];
+        if (parentLocation) {
+          parentLocation.children.push(locationMap[location.id]);
+        }
       } else {
         tree.push(locationMap[location.id]);
       }
     });
-  
+
     return tree;
-  }
-  
+}
 
 
 
