@@ -36,7 +36,10 @@ function WorldMap() {
         }
       };
 
-
+      /*
+    return (
+      <div className="overflow-hidden h-screen w-screen bg-gray-300" ></div>)
+*/
 
     return (
         <div className="overflow-hidden h-screen w-screen" 
@@ -57,6 +60,7 @@ function WorldMap() {
             </div>
         </div>
     );
+
 }
 
 
