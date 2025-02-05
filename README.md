@@ -5,6 +5,7 @@ DnD World Tracker is a tool for managing your TTRPG Worlds.
 ## To Install
 To install, clone the repository and run npm install from the root directory.
 ```powershell
+git clone https://github.com/rhyslee211/dnd-world-tracker.git
 npm install
 ```
 
